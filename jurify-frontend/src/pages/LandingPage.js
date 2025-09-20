@@ -39,25 +39,6 @@ const LandingPage = () => {
             Upload contracts for instant, simplified insights.
           </p>
 
-          {/* How it Works */}
-          <div className="how-it-works">
-            <div className="step">
-              <div className="step-icon">📄</div>
-              <h4>Upload</h4>
-              <p>Upload your legal document</p>
-            </div>
-            <div className="step">
-              <div className="step-icon">🤖</div>
-              <h4>Simplify</h4>
-              <p>AI analyzes and simplifies</p>
-            </div>
-            <div className="step">
-              <div className="step-icon">💬</div>
-              <h4>Ask AI</h4>
-              <p>Get answers in plain English</p>
-            </div>
-          </div>
-
           {/* Upload Section */}
           <div className="upload-section">
             <FileUpload onFileUpload={handleFileUpload} />
