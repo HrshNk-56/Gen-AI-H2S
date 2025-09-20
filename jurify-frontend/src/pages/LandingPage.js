@@ -34,7 +34,7 @@ const LandingPage = () => {
       {/* Hero Section */}
       <main className="main-content">
         <div className="hero-section">
-          <h2 className="tagline">Demystify Legal Documents with AI</h2>
+          <h2 className="tagline">Demystify Legal Documents</h2>
           <p className="subtitle">
             Upload contracts for instant, simplified insights.
           </p>
