@@ -1,0 +1,117 @@
+/* FileUpload.css */
+.file-upload-container {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.file-upload-zone {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 2px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 1rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.file-upload-zone:hover {
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.file-upload-zone.drag-active {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  border-style: solid;
+}
+
+.upload-content {
+  color: white;
+}
+
+.upload-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+.upload-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.upload-content p {
+  font-size: 1rem;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+.click-text {
+  color: #10b981;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.selected-file {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(16, 185, 129, 0.2);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+}
+
+.selected-file p {
+  color: #10b981;
+  font-weight: 600;
+  margin: 0;
+}
+
+.upload-btn {
+  background: linear-gradient(45deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.upload-btn:hover:not(:disabled) {
+  background: linear-gradient(45deg, #059669, #047857);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15);
+}
+
+.upload-btn:disabled {
+  background: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.file-input {
+  display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .file-upload-zone {
+    padding: 2rem 1rem;
+  }
+
+  .upload-icon {
+    font-size: 3rem;
+  }
+
+  .upload-content h3 {
+    font-size: 1.2rem;
+  }
+}
