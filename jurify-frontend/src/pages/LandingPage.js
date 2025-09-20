@@ -36,8 +36,7 @@ const LandingPage = () => {
         <div className="hero-section">
           <h2 className="tagline">Demystify Legal Documents with AI</h2>
           <p className="subtitle">
-            Upload your contract or agreement and get instant simplification, 
-            key clause analysis, and plain-English explanations.
+            Upload contracts for instant, simplified insights.
           </p>
 
           {/* How it Works */}
