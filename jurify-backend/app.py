@@ -1,3 +1,4 @@
+print("Starting Jurify backend...")
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
@@ -22,6 +23,7 @@ CORS(app, origins=["http://localhost:3000", "https://localhost:3000"])
 # Download required NLTK data
 try:
     nltk.download('punkt', quiet=True)
+    nltk.download('punkt_tab', quiet=True)
 except:
     pass
 
@@ -37,7 +39,7 @@ summarizer_tokenizer = BartTokenizer.from_pretrained("facebook/bart-large-cnn")
 try:
     nlp = spacy.load("en_core_web_sm")
 except:
-    os.system("python -m spacy download en_core_web_sm")
+    # os.system("python -m spacy download en_core_web_sm")
     nlp = spacy.load("en_core_web_sm")
 
 # Chatbot embeddings
@@ -180,6 +182,8 @@ def upload_document():
         # Load and process document
         print(f"Processing document: {file.filename}")
         original_text = load_document(file)
+        print(f"Original text length: {len(original_text)}")
+        print(f"Original text: {original_text[:500]}...")
 
         if not original_text or len(original_text.strip()) < 100:
             return jsonify({"error": "Document is empty or too short"}), 400
@@ -252,4 +256,4 @@ def get_document(doc_id):
     })
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=8000, use_reloader=False)
