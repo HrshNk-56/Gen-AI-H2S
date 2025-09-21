@@ -1,59 +1,79 @@
-// hrshnk-56/gen-ai-h2s/Gen-AI-H2S-e4b2d161f93b4d62888c5bbaa8763f3ebd19ebc2/jurify-frontend/src/pages/ResultsPage.js
+// src/pages/ResultsPage.js
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { downloadAsPdf, downloadAsDocx } from '../utils/downloadUtils';
 import { Document, Page, pdfjs } from 'react-pdf';
 import mammoth from 'mammoth';
-// CSS imports are now in App.css and have been removed from here
+
+// Import the CSS files directly into the component
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
+
 import DarkModeToggle from '../components/DarkModeToggle';
 import Chatbot from '../components/Chatbot';
 
-// PDF worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+// This is the stable way to set up the PDF worker with Create React App
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const ResultsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme } = useTheme();
 
+  const [isLoading, setIsLoading] = useState(true);
   const [documentData, setDocumentData] = useState(null);
   const [originalFile, setOriginalFile] = useState(null);
   const [originalFileType, setOriginalFileType] = useState('');
   const [originalFileContent, setOriginalFileContent] = useState(null);
-
-  // States for PDF rendering
   const [numPages, setNumPages] = useState(null);
 
   useEffect(() => {
-    if (location.state?.documentData) {
-      setDocumentData(location.state.documentData);
+    // If state is missing on page load/refresh, redirect to home
+    if (!location.state || !location.state.file || !location.state.documentData) {
+      console.warn("No file data found in location state. Redirecting to home.");
+      navigate('/');
+      return;
     }
-    if (location.state?.file) {
-      const file = location.state.file;
-      setOriginalFile(file);
-      const fileType = file.name.split('.').pop().toLowerCase();
-      setOriginalFileType(fileType);
 
-      // Process file for rendering
-      const reader = new FileReader();
-      if (fileType === 'docx') {
-        reader.onload = async (e) => {
-          try {
-            const result = await mammoth.convertToHtml({ arrayBuffer: e.target.result });
-            setOriginalFileContent(result.value);
-          } catch (error) {
-            console.error('Error converting DOCX to HTML:', error);
-            setOriginalFileContent('<p>Could not render this DOCX file.</p>');
-          }
-        };
-        reader.readAsArrayBuffer(file);
-      } else if (fileType === 'txt') {
-        reader.onload = (e) => setOriginalFileContent(e.target.result);
-        reader.readAsText(file);
-      }
+    setIsLoading(true);
+    const { file, documentData: data } = location.state;
+
+    setDocumentData(data);
+    setOriginalFile(file);
+    const fileType = file.name.split('.').pop().toLowerCase();
+    setOriginalFileType(fileType);
+
+    const reader = new FileReader();
+
+    if (fileType === 'docx') {
+      reader.onload = (e) => {
+        mammoth.convertToHtml({ arrayBuffer: e.target.result })
+            .then(result => {
+              setOriginalFileContent(result.value);
+              setIsLoading(false);
+            })
+            .catch(error => {
+              console.error('Error converting DOCX to HTML:', error);
+              setOriginalFileContent('<p>Could not render this DOCX file.</p>');
+              setIsLoading(false);
+            });
+      };
+      reader.readAsArrayBuffer(file);
+    } else if (fileType === 'txt') {
+      reader.onload = (e) => {
+        setOriginalFileContent(e.target.result);
+        setIsLoading(false);
+      };
+      reader.readAsText(file);
+    } else if (fileType === 'pdf') {
+      // PDF loading is handled by its component's callbacks
+      setIsLoading(false);
+    } else {
+      setOriginalFileContent('<p>Unsupported file type for preview.</p>');
+      setIsLoading(false);
     }
-  }, [location.state]);
+  }, [location.state, navigate]);
 
   const handleDownload = (format) => {
     if (!documentData) return;
@@ -68,14 +88,24 @@ const ResultsPage = () => {
     setNumPages(numPages);
   };
 
+  const onDocumentLoadError = (error) => {
+    console.error('Error loading PDF:', error);
+    setOriginalFileContent('<p>Could not render this PDF file.</p>');
+  }
+
   const renderOriginalContent = () => {
     if (!originalFile) return <p>Loading document...</p>;
 
     switch (originalFileType) {
       case 'pdf':
         return (
-            <Document file={originalFile} onLoadSuccess={onDocumentLoadSuccess}>
-              {Array.from(new Array(numPages), (el, index) => (
+            <Document
+                file={originalFile}
+                onLoadSuccess={onDocumentLoadSuccess}
+                onLoadError={onDocumentLoadError}
+                loading="Loading PDF..."
+            >
+              {Array.from(new Array(numPages || 0), (el, index) => (
                   <Page key={`page_${index + 1}`} pageNumber={index + 1} />
               ))}
             </Document>
@@ -88,6 +118,11 @@ const ResultsPage = () => {
         return <p>Unsupported file type for preview.</p>;
     }
   };
+
+  // Render a loading state or null if redirecting
+  if (!location.state) {
+    return null;
+  }
 
   return (
       <div className="results-page" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
@@ -113,7 +148,7 @@ const ResultsPage = () => {
             <div className="document-pane">
               <h2>Simplified Version</h2>
               <div className="document-content">
-                {documentData?.simplified || 'Processing...'}
+                {isLoading ? 'Processing...' : (documentData?.simplified || 'No simplified text available.')}
               </div>
             </div>
           </div>
@@ -122,7 +157,10 @@ const ResultsPage = () => {
             <button onClick={() => handleDownload('docx')}>Download as DOCX</button>
           </div>
         </div>
-        <Chatbot documentId={location.state?.documentId} />
+        <Chatbot
+            documentId={location.state?.documentId}
+            documentText={documentData?.simplified}
+        />
       </div>
   );
 };

@@ -1,6 +1,6 @@
-/* hrshnk-56/gen-ai-h2s/Gen-AI-H2S-e4b2d161f93b4d62888c5bbaa8763f3ebd19ebc2/jurify-frontend/src/styles/App.css */
-@import 'react-pdf/dist/Page/AnnotationLayer.css';
-@import 'react-pdf/dist/Page/TextLayer.css';
+/*// hrshnk-56/gen-ai-h2s/Gen-AI-H2S-e4b2d161f93b4d62888c5bbaa8763f3ebd19ebc2/jurify-frontend/src/styles/App.css*/
+@import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+@import 'react-pdf/dist/esm/Page/TextLayer.css';
 
 /* Global color variables */
 :root {
@@ -41,7 +41,8 @@ body {
 .results-page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh; /* Set a fixed height */
+  overflow: hidden; /* Prevent the whole page from scrolling */
 }
 
 /* Results Page Header */
@@ -51,7 +52,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--border-color); /* Updated for theme */
+  border-bottom: 1px solid #e5e7eb;
   flex-shrink: 0;
 }
 .results-header .logo {
@@ -61,7 +62,6 @@ body {
 }
 .results-header .logo h1 {
   font-size: 1.5rem;
-  color: var(--text-color); /* Updated for theme */
 }
 .results-header .header-actions button {
   padding: 0.6rem 1.2rem;
@@ -96,6 +96,7 @@ body {
   flex: 1;
   gap: 2rem;
   overflow: hidden;
+  min-height: 0; /* This is the key fix */
 }
 
 .document-pane {
@@ -112,7 +113,7 @@ body {
   padding: 1rem 1.5rem;
   margin: 0;
   font-size: 1.25rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e5e7eb;
   background-color: #f8fafc;
   flex-shrink: 0;
 }
@@ -120,7 +121,7 @@ body {
 .document-content {
   flex: 1;
   padding: 1rem;
-  overflow-y: auto;
+  overflow-y: auto; /* This will now work correctly */
   white-space: pre-wrap;
   line-height: 1.6;
   background-color: #ffffff;
@@ -216,12 +217,14 @@ body {
 .typing-indicator::after {
   animation-delay: 0.4s;
 }
+/* Add these styles to the END of src/styles/App.css */
 
+/* Header Styles */
 .app-header {
   position: sticky;
   top: 0;
   z-index: 50;
-  transition: background-color 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .app-header.scrolled {

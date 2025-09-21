@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
-const Chatbot = ({ documentId }) => {
+const Chatbot = ({ documentId, documentText }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
@@ -19,7 +19,10 @@ const Chatbot = ({ documentId }) => {
     const toggleChat = () => {
         setIsOpen(!isOpen);
         if (!isOpen && messages.length === 0) {
-            setMessages([{ sender: 'bot', text: 'Hello! Ask me anything about this document.' }]);
+            setMessages([{
+                sender: 'bot',
+                text: `Hello! I have the context of your document. Ask me anything about it.`
+            }]);
         }
     };
 
@@ -29,6 +32,11 @@ const Chatbot = ({ documentId }) => {
 
         const userMessage = { sender: 'user', text: inputValue };
         setMessages(prev => [...prev, userMessage]);
+
+        // Use the simplified text for context and send only the user's question
+        const contextText = documentText || '';
+        const question = inputValue;
+
         setInputValue('');
         setIsLoading(true);
 
@@ -36,7 +44,7 @@ const Chatbot = ({ documentId }) => {
             const response = await fetch('http://localhost:5000/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ documentId, question: inputValue }),
+                body: JSON.stringify({ documentId, question: question, context: contextText }),
             });
             const data = await response.json();
             const botMessage = { sender: 'bot', text: data.answer || "Sorry, I couldn't find an answer." };

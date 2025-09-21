@@ -1,4 +1,4 @@
-// hrshnk-56/gen-ai-h2s/Gen-AI-H2S-e4b2d161f93b4d62888c5bbaa8763f3ebd19ebc2/jurify-frontend/src/pages/LandingPageV2.js
+// hrshnk-56/gen-ai-h2s/Gen-AI-H2S-1aa65883c6ae884aae844e3a75319ca1edd77c06/jurify-frontend/src/pages/LandingPageV2.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
