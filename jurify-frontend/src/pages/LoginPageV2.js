@@ -1,11 +1,9 @@
+// hrshnk-56/gen-ai-h2s/Gen-AI-H2S-e4b2d161f93b4d62888c5bbaa8763f3ebd19ebc2/jurify-frontend/src/pages/LoginPageV2.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import DarkModeToggle from '../components/DarkModeToggle';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { FacebookAuthProvider } from 'firebase/auth';
-import '../styles/LoginPage.css';
 
 const LoginPageV2 = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -19,7 +17,7 @@ const LoginPageV2 = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
-  const { login, signup, loginAsGuest } = useAuth();
+  const { login, signup } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
 
@@ -66,30 +64,6 @@ const LoginPageV2 = () => {
     }
   };
 
-  const handleGuestMode = () => {
-    loginAsGuest();
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      // Handle successful login
-    } catch (error) {
-      console.error("Error signing in with Google:", error);
-    }
-  };
-
-  const handleFacebookSignIn = async () => {
-    try {
-      const provider = new FacebookAuthProvider();
-      await signInWithPopup(auth, provider);
-      // Handle successful login
-    } catch (error) {
-      console.error("Error signing in with Facebook:", error);
-    }
-  };
-
   const inputStyle = {
     width: '100%',
     padding: '0.75rem 1rem',
@@ -103,7 +77,7 @@ const LoginPageV2 = () => {
   };
 
   return (
-    <div className="login-page">
+    <div className="login-page" style={{backgroundColor: theme.colors.background}}>
       <DarkModeToggle />
       
       {/* Left Side - Form */}
@@ -135,7 +109,7 @@ const LoginPageV2 = () => {
             <h1 style={{
               fontSize: '2rem',
               fontWeight: 'bold',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`,
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
               color: 'transparent',
@@ -326,7 +300,7 @@ const LoginPageV2 = () => {
                 padding: '0.75rem',
                 background: loading 
                   ? theme.colors.border
-                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  : `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`,
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
@@ -334,7 +308,7 @@ const LoginPageV2 = () => {
                 fontWeight: '600',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 transition: 'transform 0.2s',
-                marginBottom: '1rem'
+                marginBottom: '1.5rem'
               }}
               onMouseEnter={(e) => !loading && (e.target.style.transform = 'translateY(-1px)')}
               onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
@@ -342,63 +316,6 @@ const LoginPageV2 = () => {
               {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
             </button>
           </form>
-
-          {/* Divider */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            margin: '1.5rem 0',
-            gap: '1rem'
-          }}>
-            <div style={{ flex: 1, height: '1px', backgroundColor: theme.colors.border }}></div>
-            <span style={{ color: theme.colors.textSecondary, fontSize: '0.9rem' }}>OR</span>
-            <div style={{ flex: 1, height: '1px', backgroundColor: theme.colors.border }}></div>
-          </div>
-
-          {/* Social Login */}
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-            <button style={{
-              flex: 1,
-              padding: '0.75rem',
-              backgroundColor: theme.colors.cardBg,
-              border: `1px solid ${theme.colors.border}`,
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.borderColor = theme.colors.primary}
-            onMouseLeave={(e) => e.currentTarget.style.borderColor = theme.colors.border}
-            onClick={handleGoogleSignIn}
-            >
-              <span style={{ fontSize: '1.2rem' }}>🔍</span>
-              <span style={{ color: theme.colors.text, fontWeight: '500' }}>Google</span>
-            </button>
-            
-            <button style={{
-              flex: 1,
-              padding: '0.75rem',
-              backgroundColor: theme.colors.cardBg,
-              border: `1px solid ${theme.colors.border}`,
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.borderColor = theme.colors.primary}
-            onMouseLeave={(e) => e.currentTarget.style.borderColor = theme.colors.border}
-            onClick={handleFacebookSignIn}
-            >
-              <span style={{ fontSize: '1.2rem' }}>⚡</span>
-              <span style={{ color: theme.colors.text, fontWeight: '500' }}>GitHub</span>
-            </button>
-          </div>
 
           {/* Toggle Login/Signup */}
           <p style={{
@@ -449,7 +366,7 @@ const LoginPageV2 = () => {
       {/* Right Side - Illustration */}
       <div style={{
         flex: 1,
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
@@ -509,7 +426,7 @@ const LoginPageV2 = () => {
             textAlign: 'left'
           }}>
             {[
-              { icon: '✅', text: 'Instant AI analysis' },
+              { icon: '✅', text: 'Custom AI analysis' },
               { icon: '🔒', text: 'Secure & confidential' },
               { icon: '💬', text: 'Interactive Q&A chat' },
               { icon: '📥', text: 'Download simplified versions' }

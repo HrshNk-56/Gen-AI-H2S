@@ -1,3 +1,4 @@
+// hrshnk-56/gen-ai-h2s/Gen-AI-H2S-e4b2d161f93b4d62888c5bbaa8763f3ebd19ebc2/jurify-frontend/src/contexts/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -47,7 +48,7 @@ export const AuthProvider = ({ children }) => {
       navigate('/results', { state: { file: pendingFile } });
       setPendingFile(null);
     } else {
-      navigate('/dashboard');
+      navigate('/');
     }
     
     return { success: true };
@@ -66,28 +67,6 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
-  const loginAsGuest = () => {
-    const guestUser = {
-      id: 'guest',
-      email: 'guest@jurify.com',
-      name: 'Guest User',
-      isGuest: true
-    };
-    
-    setUser(guestUser);
-    localStorage.setItem('user', JSON.stringify(guestUser));
-    localStorage.setItem('isAuthenticated', 'true');
-    setIsAuthenticated(true);
-    
-    // If there's a pending file, redirect to results
-    if (pendingFile) {
-      navigate('/results', { state: { file: pendingFile } });
-      setPendingFile(null);
-    } else {
-      navigate('/dashboard');
-    }
-  };
-
   const value = {
     user,
     loading,
@@ -96,7 +75,6 @@ export const AuthProvider = ({ children }) => {
     login,
     signup,
     logout,
-    loginAsGuest,
     isAuthenticated
   };
 
