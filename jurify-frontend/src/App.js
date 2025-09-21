@@ -1,20 +1,24 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
+import LandingPageV2 from './pages/LandingPageV2';
+import LoginPageV2 from './pages/LoginPageV2';
 import ResultsPage from './pages/ResultsPage';
 import './styles/App.css';
 
 function App() {
   return (
     <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/results" element={<ResultsPage />} />
-        </Routes>
-      </div>
+      <ThemeProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<LandingPageV2 />} />
+            <Route path="/login" element={<LoginPageV2 />} />
+            <Route path="/results" element={<ResultsPage />} />
+          </Routes>
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   );
 }

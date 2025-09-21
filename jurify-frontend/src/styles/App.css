@@ -2,7 +2,7 @@
 .App {
   text-align: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, #f97316 0%, #fbbf24 100%);
 }
 
 /* Global color variables */
@@ -20,6 +20,14 @@
   --shadow-light: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Dark mode colors */
+  --dark-primary: #f97316;
+  --dark-secondary: #fbbf24;
+  
+  /* Light mode colors - complementary */
+  --light-primary: #3b82f6;
+  --light-secondary: #60a5fa;
 }
 
 /* Clause color variables */
@@ -93,4 +101,64 @@ body {
 .btn-secondary:hover {
   background: var(--background-light);
   border-color: var(--primary-color);
+}
+
+.results-container {
+  width: 100%;
+  height: calc(100vh - 60px);
+  padding: 20px;
+}
+
+.split-view {
+  display: flex;
+  gap: 20px;
+  height: calc(100% - 60px);
+}
+
+.original-document,
+.simplified-document {
+  flex: 1;
+  padding: 20px;
+  border-radius: 8px;
+  background: var(--background-light);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.document-content {
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.download-options {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.download-options button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  background: var(--gradient-start);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.download-options button:hover {
+  background: var(--gradient-end);
+}
+
+/* Dark mode */
+[data-theme='dark'] {
+  --gradient-start: var(--dark-primary);
+  --gradient-end: var(--dark-secondary);
+}
+
+/* Light mode */
+[data-theme='light'] {
+  --gradient-start: var(--light-primary);
+  --gradient-end: var(--light-secondary);
 }

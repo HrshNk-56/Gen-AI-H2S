@@ -1,0 +1,10 @@
+flask==2.3.2
+flask-cors==4.0.0
+torch==2.0.1
+transformers==4.30.2
+sentence-transformers==2.2.2
+spacy==3.5.3
+PyPDF2==3.0.1
+python-docx==0.8.11
+reportlab==4.0.4
+nltk==3.8.1
