@@ -1,10 +1,13 @@
 /* hrshnk-56/gen-ai-h2s/Gen-AI-H2S-e4b2d161f93b4d62888c5bbaa8763f3ebd19ebc2/jurify-frontend/src/styles/App.css */
+@import 'react-pdf/dist/Page/AnnotationLayer.css';
+@import 'react-pdf/dist/Page/TextLayer.css';
+
 /* Global color variables */
 :root {
   /* Dark mode colors */
   --dark-primary: #f97316;
   --dark-secondary: #fbbf24;
-  
+
   /* Light mode colors - complementary */
   --light-primary: #3b82f6;
   --light-secondary: #60a5fa;
@@ -17,8 +20,8 @@
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -39,7 +42,42 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding: 2rem;
+}
+
+/* Results Page Header */
+.results-header {
+  width: 100%;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color); /* Updated for theme */
+  flex-shrink: 0;
+}
+.results-header .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.results-header .logo h1 {
+  font-size: 1.5rem;
+  color: var(--text-color); /* Updated for theme */
+}
+.results-header .header-actions button {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  background: var(--light-primary);
+  color: white;
+}
+[data-theme='dark'] .results-header .header-actions button {
+  background: linear-gradient(135deg, var(--dark-primary) 0%, var(--dark-secondary) 100%);
+}
+[data-theme='dark'] .results-header {
+  border-bottom-color: #374151;
 }
 
 .results-container {
@@ -47,16 +85,17 @@ body {
   flex-direction: column;
   flex-grow: 1;
   width: 100%;
-  max-width: 1600px;
+  max-width: 1800px;
   margin: 0 auto;
+  padding: 1rem 2rem 2rem;
+  overflow: hidden;
 }
 
 .split-view {
   display: flex;
   flex: 1;
   gap: 2rem;
-  overflow: hidden; /* Prevent parent from scrolling */
-  height: calc(100vh - 120px); /* Adjust height based on padding and download section */
+  overflow: hidden;
 }
 
 .document-pane {
@@ -66,7 +105,7 @@ body {
   flex-direction: column;
   overflow: hidden;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e5e7eb;
 }
 
 .document-pane h2 {
@@ -75,12 +114,13 @@ body {
   font-size: 1.25rem;
   border-bottom: 1px solid #e2e8f0;
   background-color: #f8fafc;
+  flex-shrink: 0;
 }
 
 .document-content {
   flex: 1;
-  padding: 1.5rem;
-  overflow-y: auto; /* Enable scrolling for individual panes */
+  padding: 1rem;
+  overflow-y: auto;
   white-space: pre-wrap;
   line-height: 1.6;
   background-color: #ffffff;
@@ -90,7 +130,8 @@ body {
   display: flex;
   gap: 1rem;
   justify-content: center;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
+  flex-shrink: 0;
 }
 
 .download-options button {
@@ -111,19 +152,67 @@ body {
 
 /* Dark Mode Overrides */
 [data-theme='dark'] .document-pane {
-  border-color: #2d3748;
-  background-color: #1a1f2e;
+  border-color: #374151;
 }
-
 [data-theme='dark'] .document-pane h2 {
-  border-color: #2d3748;
-  background-color: #141821;
+  border-color: #374151;
+  background-color: #1f2937;
 }
-
 [data-theme='dark'] .document-content {
-  background-color: #1a1f2e;
+  background-color: #111827;
 }
-
 [data-theme='dark'] .download-options button {
   background: linear-gradient(135deg, var(--dark-primary) 0%, var(--dark-secondary) 100%);
+}
+
+/* Original Document Preview styles */
+.original-preview .react-pdf__Page__canvas {
+  max-width: 100%;
+  height: auto !important;
+  margin: 0 auto;
+  display: block;
+}
+.original-preview div {
+  line-height: 1.6;
+}
+.original-preview p {
+  margin-bottom: 1em;
+}
+
+/* Chatbot styles */
+.typing-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #888;
+  animation: typing 1s infinite;
+  margin: 0 2px;
+}
+.typing-indicator:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-indicator:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes typing {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+.typing-indicator::before, .typing-indicator::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #888;
+  animation: typing 1s infinite;
+  margin: 0 2px;
+}
+.typing-indicator::before {
+  animation-delay: 0.2s;
+}
+.typing-indicator::after {
+  animation-delay: 0.4s;
 }

@@ -1,3 +1,4 @@
+// hrshnk-56/gen-ai-h2s/Gen-AI-H2S-e4b2d161f93b4d62888c5bbaa8763f3ebd19ebc2/jurify-frontend/src/contexts/ThemeContext.js
 import React, {createContext, useContext, useState, useEffect} from 'react';
 
 const ThemeContext = createContext();
@@ -14,12 +15,10 @@ export const ThemeProvider = ({children}) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    // Load theme preference from localStorage
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
       setIsDarkMode(savedTheme === 'dark');
     } else {
-      // Check system preference
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       setIsDarkMode(prefersDark);
     }
@@ -33,46 +32,39 @@ export const ThemeProvider = ({children}) => {
     });
   };
 
+  // This effect now only sets the data-theme attribute, not the background style
+  useEffect(() => {
+    document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
+
   const theme = {
     isDarkMode,
     colors: isDarkMode ? {
-      // Dark mode colors with orange-yellow gradient
-      background: '#0f1419',
-      backgroundSecondary: '#1a1f2e',
-      text: '#e1e8ed',
+      // Dark mode: Orange to Yellow gradient colors
+      background: '#111827',
+      backgroundSecondary: '#1f2937',
+      text: '#e5e7eb',
       textSecondary: '#9ca3af',
-      primary: '#f97316',  // Orange
-      primaryDark: '#ea580c',
-      secondary: '#fbbf24', // Yellow
-      border: '#2d3748',
-      cardBg: '#1a1f2e',
-      headerBg: '#141821',
-      inputBg: '#1a1f2e',
-      hover: '#252d3d',
-      success: '#10b981',
-      error: '#ef4444',
-      warning: '#f59e0b',
-      gradientStart: '#f97316',
-      gradientEnd: '#fbbf24'
+      primary: '#f97316',
+      secondary: '#fbbf24',
+      border: '#374151',
+      cardBg: '#1f2937',
+      headerBg: 'rgba(17, 24, 39, 0.8)',
+      inputBg: '#374151',
+      hover: '#374151',
     } : {
-      // Light mode colors - complementary to orange-yellow
-      background: '#fafbfc',
+      // Light mode: Complementary Blues
+      background: '#f9fafb',
       backgroundSecondary: '#ffffff',
-      text: '#1a202c',
-      textSecondary: '#4a5568',
-      primary: '#ea580c',  // Darker orange for light mode
-      primaryDark: '#c2410c',
-      secondary: '#f59e0b', // Amber
-      border: '#e2e8f0',
+      text: '#111827',
+      textSecondary: '#6b7280',
+      primary: '#2563eb',
+      secondary: '#3b82f6',
+      border: '#e5e7eb',
       cardBg: '#ffffff',
-      headerBg: '#ffffff',
+      headerBg: 'rgba(255, 255, 255, 0.8)',
       inputBg: '#ffffff',
-      hover: '#f7fafc',
-      success: '#10b981',
-      error: '#ef4444',
-      warning: '#f59e0b',
-      gradientStart: '#ea580c',
-      gradientEnd: '#f59e0b'
+      hover: '#f3f4f6',
     }
   };
 
