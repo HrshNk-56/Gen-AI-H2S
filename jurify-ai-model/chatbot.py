@@ -1,181 +1,251 @@
-# ===============================
-# 1. Install necessary packages
-# ===============================
-!pip install torch transformers sentence-transformers spacy PyPDF2 python-docx reportlab nltk --quiet
-!python -m spacy download en_core_web_sm
-
-# ===============================
-# 2. Imports
-# ===============================
-import os, re, io
-import torch
-from transformers import BartForConditionalGeneration, BartTokenizer
-from sentence_transformers import SentenceTransformer
-import spacy
-from PyPDF2 import PdfReader
-from docx import Document
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.colors import red, orange, yellow, toColor
+import os
+import shutil
+import uuid
 import nltk
-nltk.download('punkt', quiet=True)  # fixed tokenizer issue
 from nltk.tokenize import sent_tokenize
+import spacy
+import torch
+from transformers import pipeline
+from sentence_transformers import SentenceTransformer, util
+from PyPDF2 import PdfReader
+from docx.shared import RGBColor
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from fastapi import FastAPI, File, UploadFile, Form
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
-# ===============================
-# 3. Load models
-# ===============================
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-# Summarization
-summarizer_model = BartForConditionalGeneration.from_pretrained("facebook/bart-large-cnn").to(device)
-summarizer_tokenizer = BartTokenizer.from_pretrained("facebook/bart-large-cnn")
-
-# NER
+# =========================
+# Setup NLP models and downloads
+# =========================
+nltk.download('punkt', quiet=True)
+nltk.download('punkt')
+nltk.download('punkt_tab')
+spacy.cli.download("en_core_web_sm")
 nlp = spacy.load("en_core_web_sm")
 
-# Chatbot embeddings
-embed_model = SentenceTransformer('all-MiniLM-L6-v2')
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn", device=0 if torch.cuda.is_available() else -1)
+embedder = SentenceTransformer('all-MiniLM-L6-v2')
 
-# ===============================
-# 4. Helper functions
-# ===============================
+app = FastAPI()
 
-# 4.1 Load document
-def load_document(file_path):
-    ext = file_path.split('.')[-1].lower()
+# Use environment variable ALLOWED_ORIGINS for CORS or fallback to placeholder
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS")
+if allowed_origins_env:
+    origins = [origin.strip() for origin in allowed_origins_env.split(",")]
+else:
+    origins = ["https://your.production.frontend"]  # Change this to your frontend domain on production
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# =========================
+# Expanded legal keywords list
+# =========================
+legal_keywords = [
+    # Original legal terms
+    "agreement", "contract", "memorandum of understanding", "mou", "parties", "title of the agreement", "scope of work",
+    "payment terms", "deliverables", "recitals", "definitions", "representations and warranties", "confidentiality", "assignment",
+    "indemnification", "arbitration", "dispute resolution", "governing law", "jurisdiction", "force majeure", "termination",
+    "survival", "notices", "amendment", "severability", "waiver", "entire agreement", "remedies", "liability", "limitation of liability",
+    "compliance", "binding effect", "assignment", "intellectual property", "licence", "licensing", "payment schedule", "independent contractor",
+    "performance", "default", "material breach", "non-competition", "non-compete", "non-solicitation", "solicitation", "duty of care",
+    "time is of the essence", "further assurances", "counterparts", "shall", "must", "is required to", "undertakes to", "agrees to",
+    "is not permitted to", "is not allowed", "shall not", "must not", "may", "discretion", "at its option", "reasonable efforts",
+    "best efforts", "commercially reasonable", "sole discretion", "breach", "liable", "damages", "claims", "indemnify", "injunction",
+    "injunctive relief", "consequential damages", "fine", "remedy", "notice of default", "cure period", "covenant", "restitution",
+    "revoke", "terminate", "with immediate effect", "ipso facto", "mutatis mutandis", "ex parte", "prima facie", "inter alia",
+    "bona fide", "de facto", "de jure", "ultra vires", "sub judice", "ad hoc", "per se", "ab initio", "quasi", "in rem", "in personam",
+    "pro rata", "res judicata", "mens rea", "plaintiff", "defendant", "respondent", "petitioner", "appellant", "appellee", "amicus curiae",
+    "affidavit", "plea", "summons", "writ", "motion", "discovery", "interrogatory", "deposition", "cross-examination", "fir", "sc", "hc",
+    "llb", "llm", "ipc", "crpc", "cpc", "adr", "pil", "wpa", "nclt", "nclat", "sebi", "it act", "cji", "rti", "nia", "nsa", "afspa",
+    "dv act", "ncr", "bba", "ba", "coi", "ncrb", "rera", "eow", "itat", "gst", "sarfaesi", "ndps", "csr", "mou", "ibc", "cic", "dspe",
+    "bod", "clat", "mm", "acb", "ni act", "jm", "ncdrc", "fema", "pmla", "public interest", "regulatory", "compliance", "subject to",
+    "pursuant to", "statutory", "bylaws", "hereinafter", "heretofore", "notwithstanding", "provided that", "forthwith", "without prejudice",
+    "consideration", "material", "good faith", "warrant", "authorised", "unlawful", "void", "voidable", "estoppel", "subrogation",
+    "fiduciary", "proxy", "guarantor", "guarantee", "surety", "bailment", "lien", "mortgage", "deed", "trust", "estate", "probate",
+    "executor", "testator", "beneficiary", "bequest", "bequeath", "grantor", "donee", "acceptor", "endorsee", "payee", "right of first refusal",
+    "first right", "exclusive", "nonexclusive", "obligation", "duty", "instrument", "statute", "enforceable", "binding", "subject to", "pursuant to",
+    # Added legal keywords + 50 terms
+    "arbitration clause", "force majeure event", "confidential information", "non-disclosure", "independent contractor",
+    "covenant not to compete", "intellectual property rights", "representations", "warranties", "licensee",
+    "licensor", "governing jurisdiction", "severability clause", "notice period", "termination for convenience",
+    "material adverse effect", "entire agreement clause", "dispute settlement", "liquidated damages", "remedies available",
+    "penalty clause", "default interest", "binding contract", "good faith negotiations", "third party beneficiary",
+    "assignment and delegation", "force majeure clause", "contract extension", "indemnity", "breach notice",
+    "conflict resolution", "non-waiver", "time is of the essence", "counterparts clause", "no oral modification",
+    "assignment provision", "limitation of damages", "collateral warranties", "succession rights", "third party rights",
+    "licensing agreement", "delivery obligations", "contractual obligation", "performance standards", "termination notice",
+    "payment obligations", "remuneration", "exclusive rights", "non-exclusive license", "contractual warranties", "liability cap"
+]
+
+def load_document(filepath):
+    ext = filepath.lower().split(".")[-1]
     text = ""
     if ext == "pdf":
-        reader = PdfReader(file_path)
+        reader = PdfReader(filepath)
         for page in reader.pages:
-            text += page.extract_text() + "\n"
-    elif ext in ["docx", "doc"]:
-        doc = Document(file_path)
+            if page.extract_text():
+                text += page.extract_text() + "\n"
+    elif ext == "docx":
+        from docx import Document
+        doc = Document(filepath)
         for para in doc.paragraphs:
             text += para.text + "\n"
     elif ext == "txt":
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             text = f.read()
     else:
-        raise ValueError("Unsupported file format")
-    return text
+        raise ValueError("Unsupported file type. Use pdf, docx, or txt.")
+    return text.strip()
 
-# 4.2 Chunked summarization
-def simplify_document(text, max_chunk_words=2000):
-    words = text.split()
-    chunks = [" ".join(words[i:i+max_chunk_words]) for i in range(0, len(words), max_chunk_words)]
-    simplified = []
-    for chunk in chunks:
-        inputs = summarizer_tokenizer(chunk, return_tensors="pt", truncation=True, max_length=1024).to(device)
-        summary_ids = summarizer_model.generate(**inputs, max_length=512, min_length=50, length_penalty=2.0)
-        summary = summarizer_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-        simplified.append(summary)
-    return "\n\n".join(simplified)
+def simplify_text(text, max_chunk=600):
+    sentences = sent_tokenize(text)
+    chunks, chunk, count = [], [], 0
+    for sent in sentences:
+        count += len(sent.split())
+        if count > max_chunk:
+            chunks.append(" ".join(chunk))
+            chunk, count = [sent], len(sent.split())
+        else:
+            chunk.append(sent)
+    if chunk:
+        chunks.append(" ".join(chunk))
+    summaries = summarizer(chunks, max_length=150, min_length=40, do_sample=False)
+    simplified_text = " ".join([s["summary_text"].strip() for s in summaries])
+    simplified_text = " ".join(sent_tokenize(simplified_text))
+    return simplified_text
 
-# 4.3 Highlight Important words (NER)
-def highlight_important(text):
+def highlight_text(text):
     doc = nlp(text)
-    highlights = {}
-    color_cycle = ["red", "orange", "yellow"]
-    idx = 0
-    for ent in doc.ents:
-        highlights[ent.text] = color_cycle[idx % len(color_cycle)]
-        idx +=1
-    return highlights
+    sentences = [sent.text.strip() for sent in doc.sents if sent.text.strip()]
 
-# 4.4 Save PDF with readable highlights
-def save_pdf_with_highlights(pdf_path, text, highlights_dict):
-    styles = getSampleStyleSheet()
-    normal_style = styles["Normal"]
-    color_map = {"red": red, "orange": orange, "yellow": yellow}
+    highlighted = []
+    for sent in sentences:
+        s_lower = sent.lower()
+        color = None
+        for keyword in legal_keywords:
+            if keyword in s_lower:
+                if any(k in s_lower for k in ["shall", "must", "required", "liability", "indemnification", "material breach", "termination"]):
+                    color = RGBColor(255, 0, 0)       # Red
+                elif any(k in s_lower for k in ["should", "may", "discretion", "remedy"]):
+                    color = RGBColor(255, 165, 0)     # Orange
+                else:
+                    color = RGBColor(255, 255, 0)     # Yellow
+                break
+        highlighted.append((sent, color))
+    return highlighted
 
-    doc = SimpleDocTemplate(pdf_path, pagesize=letter)
-    story = []
+def save_pdf(highlighted, filename):
+    c = canvas.Canvas(filename, pagesize=letter)
+    width, height = letter
+    y = height - 40
+    for sent, color in highlighted:
+        highlight_height = 15
+        text_x = 40
+        rect_width = min(520, width - 2 * text_x)
 
-    paragraphs = text.split("\n\n")
-    for para in paragraphs:
-        words = para.split()
-        line_fragments = ""
-        for word in words:
-            highlight_color = highlights_dict.get(word, None)
-            if highlight_color:
-                try:
-                    hex_color = toColor(color_map[highlight_color]).hexval()
-                    line_fragments += f'<font backColor="{hex_color}">{word}</font> '
-                except:
-                    line_fragments += word + " "
-            else:
-                line_fragments += word + " "
-        story.append(Paragraph(line_fragments, normal_style))
-        story.append(Spacer(1,4))
-    doc.build(story)
-    print(f"PDF saved at: {pdf_path}")
+        if color == RGBColor(255, 0, 0):
+            c.setFillColorRGB(1, 0.7, 0.7)
+        elif color == RGBColor(255, 165, 0):
+            c.setFillColorRGB(1, 0.9, 0.7)
+        elif color == RGBColor(255, 255, 0):
+            c.setFillColorRGB(1, 1, 0.6)
+        else:
+            c.setFillColorRGB(1, 1, 1)
 
-# 4.5 Save DOCX with highlights
-def save_docx_with_highlights(docx_path, text, highlights_dict):
-    doc = Document()
-    paragraphs = text.split("\n\n")
-    for para in paragraphs:
-        p = doc.add_paragraph()
-        words = para.split()
-        for word in words:
-            run = p.add_run(word + " ")
-            if word in highlights_dict:
-                color_name = highlights_dict[word]
-                run.font.highlight_color = {
-                    "red": 7,
-                    "yellow": 5,
-                    "orange": 3
-                }.get(color_name, None)
-    doc.save(docx_path)
-    print(f"DOCX saved at: {docx_path}")
+        c.rect(text_x - 3, y - 2, rect_width, highlight_height, fill=1, stroke=0)
+        c.setFillColorRGB(0, 0, 0)
+        c.drawString(text_x, y, sent[:110])
+        y -= highlight_height
+        if y < 40:
+            c.showPage()
+            y = height - 40
+    c.save()
 
-# 4.6 Safe sentence tokenizer (fixed)
-def safe_sent_tokenize(text):
-    try:
-        return sent_tokenize(text)
-    except:
-        # fallback: split by punctuation
-        return re.split(r'(?<=[.!?]) +', text)
+def save_txt(highlighted, filename):
+    with open(filename, "w", encoding="utf-8") as f:
+        for sent, color in highlighted:
+            tag = ""
+            if color == RGBColor(255, 0, 0):
+                tag = "[RED] "
+            elif color == RGBColor(255, 165, 0):
+                tag = "[ORANGE] "
+            elif color == RGBColor(255, 255, 0):
+                tag = "[YELLOW] "
+            f.write(f"{tag}{sent}\n")
 
-# 4.7 Chatbot Query
-def chatbot_query(text, user_question, top_k=5):
-    try:
-        sentences = safe_sent_tokenize(text)
-        sentence_embeddings = embed_model.encode(sentences)
-        question_embedding = embed_model.encode([user_question])
-        similarities = torch.nn.functional.cosine_similarity(
-            torch.tensor(question_embedding), torch.tensor(sentence_embeddings)
-        )
-        top_idx = torch.topk(similarities, k=min(top_k, len(sentences))).indices
-        answer = " ".join([sentences[i] for i in top_idx])
-        return answer
-    except Exception as e:
-        return f"No relevant information found. ({str(e)})"
+class SimpleChatbot:
+    def _init_(self, highlighted):
+        self.sentences = [sent for sent, color in highlighted]
+        self.embeddings = embedder.encode(self.sentences, convert_to_tensor=True)
 
-# ===============================
-# 5. Main execution example
-# ===============================
-from google.colab import files
-uploaded = files.upload()
-file_path = list(uploaded.keys())[0]
+    def ask(self, query, top_k=2):
+        q_emb = embedder.encode(query, convert_to_tensor=True)
+        scores = util.cos_sim(q_emb, self.embeddings)[0]
+        top_idx = scores.argsort(descending=True)[:top_k]
+        return [self.sentences[i] for i in top_idx]
 
-# Load and simplify
-doc_text = load_document(file_path)
-simplified_text = simplify_document(doc_text)
+TEMP_DIR = "temp_files"
+if not os.path.exists(TEMP_DIR):
+    os.makedirs(TEMP_DIR)
 
-# Highlight
-highlights = highlight_important(simplified_text)
+@app.post("/upload/")
+async def upload_file(file: UploadFile = File(...)):
+    file_id = str(uuid.uuid4())
+    file_path = os.path.join(TEMP_DIR, f"{file_id}_{file.filename}")
+    with open(file_path, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+    return {"file_id": file_id, "filename": file.filename, "filepath": file_path}
 
-# Save outputs
-save_docx_with_highlights("simplified_highlighted.docx", simplified_text, highlights)
-save_pdf_with_highlights("simplified_highlighted.pdf", simplified_text, highlights)
+@app.post("/process/")
+async def process_file(file_id: str = Form(...), user_choice: str = Form("pdf")):
+    matching_files = [f for f in os.listdir(TEMP_DIR) if f.startswith(file_id)]
+    if not matching_files:
+        return JSONResponse({"error": "File not found"}, status_code=404)
+    file_path = os.path.join(TEMP_DIR, matching_files[0])
 
-# Chatbot interactive
-print("\n--- Chatbot Example ---")
-while True:
-    user_q = input("Enter your question (type 'exit' to quit): ")
-    if user_q.lower() == "exit":
-        break
-    answer = chatbot_query(simplified_text, user_q)
-    print("Chatbot Answer:", answer)
+    raw_text = load_document(file_path)
+    simplified = simplify_text(raw_text)
+    highlighted = highlight_text(simplified)
+
+    out_filename = os.path.join(TEMP_DIR, f"{file_id}_simplified_highlighted")
+    if user_choice.lower() == "pdf":
+        out_filename += ".pdf"
+        save_pdf(highlighted, out_filename)
+    elif user_choice.lower() == "txt":
+        out_filename += ".txt"
+        save_txt(highlighted, out_filename)
+    else:
+        return JSONResponse({"error": "Unsupported output format"}, status_code=400)
+
+    # Always create new chatbot instance fresh per call
+    # This code is stateless per REST best practice
+    return {"output_file": os.path.basename(out_filename)}
+
+@app.get("/download/")
+async def download_file(filename: str):
+    file_path = os.path.join(TEMP_DIR, filename)
+    if not os.path.exists(file_path):
+        return JSONResponse({"error": "File not found"}, status_code=404)
+    return FileResponse(path=file_path, filename=filename, media_type='application/octet-stream')
+
+@app.post("/chat/")
+async def chat(query: str = Form(...), file_id: str = Form(...)):
+    matching_files = [f for f in os.listdir(TEMP_DIR) if f.startswith(file_id)]
+    if not matching_files:
+        return JSONResponse({"error": "No simplified text available for given file_id"}, status_code=404)
+    file_path = os.path.join(TEMP_DIR, matching_files[0])
+
+    raw_text = load_document(file_path)
+    simplified = simplify_text(raw_text)
+    highlighted = highlight_text(simplified)
+    bot = SimpleChatbot(highlighted)
+
+    answers = bot.ask(query, top_k=3)
+    return {"answers": answers}

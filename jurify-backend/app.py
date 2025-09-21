@@ -15,7 +15,7 @@ import tempfile
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000"])
+CORS(app, origins=["http://localhost:3000", "https://localhost:3000"])
 
 # Download required NLTK data
 try:
@@ -99,13 +99,13 @@ def extract_clauses(text):
     """Extract important clauses from document"""
     doc = nlp(text[:10000])  # Limit for performance
     clauses = []
-    
+
     # Common legal terms to look for
-    legal_terms = ["confidential", "termination", "payment", "liability", "warranty", 
+    legal_terms = ["confidential", "termination", "payment", "liability", "warranty",
                    "indemnification", "jurisdiction", "force majeure", "dispute"]
-    
+
     sentences = sent_tokenize(text)[:20]  # First 20 sentences
-    
+
     for i, sent in enumerate(sentences):
         sent_lower = sent.lower()
         for term in legal_terms:
@@ -119,7 +119,7 @@ def extract_clauses(text):
                     "importance": "high" if term in ["liability", "termination", "payment"] else "medium"
                 })
                 break
-    
+
     return clauses[:5]  # Return max 5 clauses
 
 def simplify_sentence(sentence):
@@ -144,11 +144,11 @@ def chatbot_query(text, user_question, top_k=3):
         sentences = safe_sent_tokenize(text)[:50]  # Limit sentences
         sentence_embeddings = embed_model.encode(sentences)
         question_embedding = embed_model.encode([user_question])
-        
+
         similarities = torch.nn.functional.cosine_similarity(
             torch.tensor(question_embedding), torch.tensor(sentence_embeddings)
         )
-        
+
         top_idx = torch.topk(similarities, k=min(top_k, len(sentences))).indices
         answer = " ".join([sentences[i] for i in top_idx])
         return answer
@@ -166,28 +166,28 @@ def upload_document():
     try:
         if 'file' not in request.files:
             return jsonify({"error": "No file provided"}), 400
-        
+
         file = request.files['file']
         if file.filename == '':
             return jsonify({"error": "No file selected"}), 400
-        
+
         # Generate document ID
         import uuid
         doc_id = str(uuid.uuid4())
-        
+
         # Load and process document
         print(f"Processing document: {file.filename}")
         original_text = load_document(file)
-        
+
         if not original_text or len(original_text.strip()) < 100:
             return jsonify({"error": "Document is empty or too short"}), 400
-        
+
         print("Simplifying document...")
         simplified_text = simplify_document(original_text)
-        
+
         print("Extracting clauses...")
         clauses = extract_clauses(original_text)
-        
+
         # Store in memory
         document_store[doc_id] = {
             "original": original_text[:5000],  # Store first 5000 chars
@@ -195,7 +195,7 @@ def upload_document():
             "clauses": clauses,
             "filename": file.filename
         }
-        
+
         return jsonify({
             "success": True,
             "documentId": doc_id,
@@ -205,7 +205,7 @@ def upload_document():
                 "clauses": clauses
             }
         })
-        
+
     except Exception as e:
         print(f"Error processing document: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -217,23 +217,23 @@ def chat():
         data = request.json
         document_id = data.get('documentId')
         question = data.get('question')
-        
+
         if not document_id or not question:
             return jsonify({"error": "Missing documentId or question"}), 400
-        
+
         if document_id not in document_store:
             return jsonify({"error": "Document not found"}), 404
-        
+
         doc_data = document_store[document_id]
-        
+
         # Use simplified text for chatbot
         answer = chatbot_query(doc_data['simplified'], question)
-        
+
         return jsonify({
             "success": True,
             "answer": answer
         })
-        
+
     except Exception as e:
         print(f"Chat error: {str(e)}")
         return jsonify({"error": "Failed to process question"}), 500
@@ -243,7 +243,7 @@ def get_document(doc_id):
     """Get processed document by ID"""
     if doc_id not in document_store:
         return jsonify({"error": "Document not found"}), 404
-    
+
     return jsonify({
         "success": True,
         "data": document_store[doc_id]

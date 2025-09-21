@@ -84,31 +84,9 @@ const LandingPageV2 = () => {
         backgroundColor: theme.colors.background,
         transition: 'background-color 0.3s ease'
       }}>
-        <DarkModeToggle />
-
-        <header style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          backgroundColor: isScrolled ? theme.colors.headerBg : 'transparent',
-          backdropFilter: isScrolled ? 'blur(10px)' : 'none',
-          transition: 'all 0.3s ease',
-          borderBottom: isScrolled ? `1px solid ${theme.colors.border}` : 'none'
-        }}>
-          <nav style={{
-            maxWidth: '1280px',
-            margin: '0 auto',
-            padding: '1rem 2rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              cursor: 'pointer'
-            }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <header className={`app-header ${isScrolled ? 'scrolled' : ''}`}>
+          <nav className="app-nav">
+            <div className="nav-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <span style={{ fontSize: '1.5rem' }}>⚖️</span>
               <h1 style={{
                 fontSize: '1.5rem',
@@ -121,11 +99,7 @@ const LandingPageV2 = () => {
               }}>Jurify</h1>
             </div>
 
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '2rem'
-            }}>
+            <div className="nav-links">
               <a href="#features" style={{ color: theme.colors.text, textDecoration: 'none', fontSize: '0.95rem', fontWeight: '500' }}>Features</a>
               <a href="#how-it-works" style={{ color: theme.colors.text, textDecoration: 'none', fontSize: '0.95rem', fontWeight: '500' }}>How It Works</a>
 
@@ -143,6 +117,7 @@ const LandingPageV2 = () => {
                     <button onClick={() => navigate('/login')} style={{ background: `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600', padding: '0.6rem 1.5rem' }}>Get Started</button>
                   </>
               )}
+              <DarkModeToggle />
             </div>
           </nav>
         </header>
@@ -177,26 +152,12 @@ const LandingPageV2 = () => {
         <section id="features" style={{ padding: '5rem 2rem', backgroundColor: theme.colors.backgroundSecondary }}>
           <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-              <h2 style={{
-                fontSize: '2.5rem',
-                fontWeight: '700',
-                color: theme.colors.text,
-                marginBottom: '1rem'
-              }}>Why Choose Jurify?</h2>
-              <p style={{
-                fontSize: '1.1rem',
-                color: theme.colors.textSecondary,
-                maxWidth: '600px',
-                margin: '0 auto'
-              }}>
+              <h2 style={{ fontSize: '2.5rem', fontWeight: '700', color: theme.colors.text, marginBottom: '1rem' }}>Why Choose Jurify?</h2>
+              <p style={{ fontSize: '1.1rem', color: theme.colors.textSecondary, maxWidth: '600px', margin: '0 auto' }}>
                 Cutting-edge AI technology meets user-friendly design to deliver the best legal document analysis experience
               </p>
             </div>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '2rem'
-            }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
               {features.map((feature, index) => (
                   <div
                       key={index}
@@ -230,12 +191,7 @@ const LandingPageV2 = () => {
               <h2 style={{ fontSize: '2.5rem', fontWeight: '700', color: theme.colors.text, marginBottom: '1rem' }}>How It Works</h2>
               <p style={{ fontSize: '1.1rem', color: theme.colors.textSecondary }}>Three simple steps to understanding your legal documents</p>
             </div>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '3rem',
-              position: 'relative'
-            }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', position: 'relative' }}>
               {[
                 { step: '1', title: 'Upload Document', desc: 'Drag and drop or select your legal document in PDF, DOC, or TXT format', icon: '📤' },
                 { step: '2', title: 'AI Processing', desc: 'Our advanced AI analyzes and simplifies complex legal language instantly', icon: '🤖' },
@@ -281,23 +237,9 @@ const LandingPageV2 = () => {
           </div>
         </section>
 
-        <footer style={{
-          padding: '3rem 2rem',
-          backgroundColor: theme.colors.backgroundSecondary,
-          borderTop: `1px solid ${theme.colors.border}`,
-          textAlign: 'center'
-        }}>
-          <div style={{
-            maxWidth: '1280px',
-            margin: '0 auto'
-          }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '0.5rem',
-              marginBottom: '1rem'
-            }}>
+        <footer style={{ padding: '3rem 2rem', backgroundColor: theme.colors.backgroundSecondary, borderTop: `1px solid ${theme.colors.border}`, textAlign: 'center' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
               <span style={{ fontSize: '1.5rem' }}>⚖️</span>
               <h3 style={{
                 fontSize: '1.25rem',
@@ -309,24 +251,13 @@ const LandingPageV2 = () => {
                 margin: 0
               }}>Jurify</h3>
             </div>
-            <p style={{
-              color: theme.colors.textSecondary,
-              marginBottom: '1.5rem',
-              fontSize: '0.9rem'
-            }}>
+            <p style={{ color: theme.colors.textSecondary, marginBottom: '1.5rem', fontSize: '0.9rem' }}>
               AI-powered legal document simplification for hackathons
             </p>
-            <p style={{
-              color: theme.colors.textSecondary,
-              fontSize: '0.85rem'
-            }}>
+            <p style={{ color: theme.colors.textSecondary, fontSize: '0.85rem' }}>
               ⚠️ This tool provides AI-powered simplification only and is not legal advice.
             </p>
-            <p style={{
-              marginTop: '2rem',
-              color: theme.colors.textSecondary,
-              fontSize: '0.85rem'
-            }}>
+            <p style={{ marginTop: '2rem', color: theme.colors.textSecondary, fontSize: '0.85rem' }}>
               © 2025 Jurify Hackathon Project
             </p>
           </div>

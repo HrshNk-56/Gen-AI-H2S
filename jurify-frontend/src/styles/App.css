@@ -216,3 +216,61 @@ body {
 .typing-indicator::after {
   animation-delay: 0.4s;
 }
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: background-color 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+.app-header.scrolled {
+  backdrop-filter: blur(10px);
+}
+
+[data-theme='light'] .app-header.scrolled {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid #e5e7eb;
+}
+[data-theme='dark'] .app-header.scrolled {
+  background-color: rgba(17, 24, 39, 0.85);
+  border-bottom: 1px solid #374151;
+}
+
+.app-nav {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Responsive styles for the header */
+@media (max-width: 920px) {
+  .app-nav {
+    flex-direction: column; /* Stack logo and links vertically */
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem 1.5rem; /* Control spacing for wrapped items */
+  }
+}
