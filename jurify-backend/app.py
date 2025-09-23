@@ -18,7 +18,7 @@ nltk.download('punkt_tab')
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "https://jurify-test.vercel.app"])
+CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "https://jurify-test.vercel.app, https://7crk8sexpd.us-east-1.awsapprunner.com"])
 
 # Download required NLTK data
 try:
