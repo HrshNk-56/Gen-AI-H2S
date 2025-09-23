@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #e2e8f0; /* light gray text for better contrast */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+        }
+        /* Clockwise and anti-clockwise rotation */
+        @keyframes tilt-alternate {
+            0% {
+                transform: rotateZ(-10deg);
+            }
+            50% {
+                transform: rotateZ(10deg);
+            }
+            100% {
+                transform: rotateZ(-10deg);
+            }
+        }
+        .animate-tilt-alternate {
+            animation: tilt-alternate 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-black p-4 sm:p-8">
+<div class="bg-gray-900 rounded-[4rem] p-8 sm:p-12 w-full max-w-lg shadow-2xl flex flex-col items-center border border-gray-700">
+
+    <!-- Static Image Section -->
+    <div class="relative w-60 h-60 overflow-hidden rounded-full mb-6 shadow-lg mx-auto p-4 bg-white flex justify-center items-center border-4 border-orange-500">
+        <img src="https://media.istockphoto.com/id/1249867122/vector/balance-blue-icon-justice-law-measurement.jpg?s=612x612&w=0&k=20&c=5iw0UTYWP_ZQmN-ChRFkmzkYY_ojb5njhc-caSE2xnU=" alt="A stylized, flat-design illustration of a legal scale" class="w-full h-full object-contain animate-tilt-alternate">
+    </div>
+
+    <h1 class="text-5xl md:text-6xl font-bold text-center text-blue-500 mb-2">
+        Jurify
+    </h1>
+    <p class="text-lg md:text-xl font-medium text-center text-gray-400 mb-8">
+        Your guide to legal understanding
+    </p>
+
+    <!-- Login Form -->
+    <div class="w-full space-y-4 mb-6">
+        <div class="relative flex items-center bg-gray-800 rounded-full py-4 px-6 focus-within:ring-2 focus-within:ring-orange-500 transition-all duration-300">
+                <span class="text-gray-500 mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </span>
+            <input type="text" placeholder="Email or Phone Number" class="w-full bg-transparent outline-none border-none text-lg text-white placeholder-gray-500" />
+        </div>
+        <div class="relative flex items-center bg-gray-800 rounded-full py-4 px-6 focus-within:ring-2 focus-within:ring-orange-500 transition-all duration-300">
+                <span class="text-gray-500 mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </span>
+            <input type="password" placeholder="Password" class="w-full bg-transparent outline-none border-none text-lg text-white placeholder-gray-500" />
+        </div>
+        <div class="text-right text-sm md:text-base">
+            <a href="#" class="text-orange-500 font-semibold hover:underline">Forgot your password?</a>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="w-full space-y-4">
+        <button class="w-full bg-orange-500 text-white font-bold text-xl py-4 rounded-full shadow-lg hover:bg-orange-600 transition-colors duration-300">
+            Sign In
+        </button>
+        <div class="text-center text-gray-400 font-medium my-4">or</div>
+        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+            <button class="flex-1 flex items-center justify-center bg-red-500 text-white font-bold text-lg py-4 rounded-full shadow-lg hover:bg-red-600 transition-colors duration-300">
+                <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.733 0-1.325.592-1.325 1.325v21.35c0 .733.592 1.325 1.325 1.325h11.455v-9.293h-3.136v-3.646h3.136v-2.673c0-3.111 1.89-4.802 4.654-4.802 1.325 0 2.463.098 2.793.142v3.238l-1.921.001c-1.503 0-1.8.715-1.8 1.764v2.316h3.587l-.54 3.646h-3.047v9.293h6.103c.733 0 1.325-.592 1.325-1.325v-21.35c0-.733-.592-1.325-1.325-1.325z"/></svg>
+                Facebook
+            </button>
+            <button class="flex-1 flex items-center justify-center bg-blue-500 text-white font-bold text-lg py-4 rounded-full shadow-lg hover:bg-blue-600 transition-colors duration-300">
+                <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.292 18.068c-1.07.01-1.939-.425-2.585-1.284-.647-.859-.971-2.008-.971-3.447v-.55c0-1.282.477-2.31 1.432-3.085.955-.776 2.155-1.164 3.6-1.164h.478c1.378 0 2.457.29 3.238.87.781.579 1.171 1.391 1.171 2.434v.328c0 1.135-.389 2.053-1.165 2.754-.775.701-1.815 1.052-3.119 1.052h-.478zm-.292-8.381c-.596 0-1.107.132-1.533.396-.425.263-.733.626-.924 1.087-.19.46-.286 1.014-.286 1.662v.55c0 1.052.193 1.838.579 2.359.385.52.88.78 1.484.78h.478c.875 0 1.57-.202 2.083-.607.513-.404.77-1.026.77-1.867v-.328c0-.796-.188-1.396-.563-1.801-.375-.404-.88-.606-1.515-.606h-.478z"/></svg>
+                Google
+            </button>
+        </div>
+    </div>
+
+    <!-- Sign Up Link -->
+    <p class="text-sm md:text-base mt-8">
+        Don't have an account? <a href="#" class="text-orange-500 font-bold hover:underline">Sign Up</a>
+    </p>
+</div>
+</body>
+</html>
