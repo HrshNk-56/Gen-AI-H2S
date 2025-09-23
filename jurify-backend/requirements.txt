@@ -7,4 +7,5 @@ spacy
 PyPDF2
 python-docx
 reportlab
-nltkgunicorn
+nltk
+gunicorn
