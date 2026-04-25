@@ -138,6 +138,42 @@ const ResultsPage = () => {
         </header>
 
         <div className="results-container">
+          {documentData?.clauses?.length > 0 && (
+            <div className="clauses-section" style={{ 
+              marginBottom: '2rem', 
+              padding: '1.5rem', 
+              backgroundColor: theme.colors.cardBg, 
+              borderRadius: '12px',
+              border: `1px solid ${theme.colors.border}`
+            }}>
+              <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem' }}>Key Clauses Identified</h2>
+              <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                {documentData.clauses.map(clause => (
+                  <div key={clause.id} style={{
+                    minWidth: '250px',
+                    padding: '1rem',
+                    backgroundColor: theme.colors.hover,
+                    borderRadius: '8px',
+                    borderLeft: `4px solid ${clause.importance === 'high' ? '#ef4444' : theme.colors.primary}`
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{clause.type}</span>
+                      <span style={{ 
+                        fontSize: '0.7rem', 
+                        padding: '0.2rem 0.5rem', 
+                        borderRadius: '10px', 
+                        backgroundColor: clause.importance === 'high' ? '#fee2e2' : '#e0e7ff',
+                        color: clause.importance === 'high' ? '#ef4444' : '#4338ca'
+                      }}>{clause.importance.toUpperCase()}</span>
+                    </div>
+                    <p style={{ fontSize: '0.85rem', color: theme.colors.textSecondary, display: '-webkit-box', WebkitLineClamp: '3', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {clause.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="split-view">
             <div className="document-pane">
               <h2>Original Document</h2>
@@ -148,7 +184,11 @@ const ResultsPage = () => {
             <div className="document-pane">
               <h2>Simplified Version</h2>
               <div className="document-content">
-                {isLoading ? 'Processing...' : (documentData?.simplified || 'No simplified text available.')}
+                {isLoading ? 'Processing...' : (
+                  <div style={{ whiteSpace: 'pre-wrap' }}>
+                    {documentData?.simplified || 'No simplified text available.'}
+                  </div>
+                )}
               </div>
             </div>
           </div>

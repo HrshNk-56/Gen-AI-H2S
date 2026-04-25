@@ -8,6 +8,8 @@ from sentence_transformers import SentenceTransformer
 import spacy
 from PyPDF2 import PdfReader
 from docx import Document
+import json
+from functools import lru_cache
 import nltk
 from nltk.tokenize import sent_tokenize
 import re
@@ -87,8 +89,14 @@ def load_document(file):
     
     return text
 
+@lru_cache(maxsize=32)
+def cached_summarize(chunk):
+    inputs = summarizer_tokenizer(chunk, return_tensors="pt", truncation=True, max_length=1024).to(device)
+    summary_ids = summarizer_model.generate(**inputs, max_length=200, min_length=50, length_penalty=2.0)
+    return summarizer_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+
 def simplify_document(text, max_chunk_words=500):
-    """Simplify document text using BART"""
+    """Simplify document text using BART with caching"""
     words = text.split()
     chunks = [" ".join(words[i:i+max_chunk_words]) for i in range(0, len(words), max_chunk_words)]
     simplified = []
@@ -96,23 +104,42 @@ def simplify_document(text, max_chunk_words=500):
     for chunk in chunks[:5]:  # Limit to first 5 chunks for demo
         if not chunk.strip():
             continue
-        inputs = summarizer_tokenizer(chunk, return_tensors="pt", truncation=True, max_length=1024).to(device)
-        summary_ids = summarizer_model.generate(**inputs, max_length=200, min_length=50, length_penalty=2.0)
-        summary = summarizer_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+
+        summary = cached_summarize(chunk)
         simplified.append(summary)
     
     return "\n\n".join(simplified)
 
 def extract_clauses(text):
-    """Extract important clauses from document"""
-    doc = nlp(text[:10000])  # Limit for performance
+    """Extract important clauses from the entire document intelligently"""
     clauses = []
+    legal_terms = {
+        "confidential": "Confidentiality",
+        "termination": "Termination",
+        "payment": "Payment Terms",
+        "liability": "Liability",
+        "warranty": "Warranty",
+        "indemnification": "Indemnity",
+        "jurisdiction": "Governing Law",
+        "dispute": "Dispute Resolution"
+    }
 
-    # Common legal terms to look for
-    legal_terms = ["confidential", "termination", "payment", "liability", "warranty",
-                   "indemnification", "jurisdiction", "force majeure", "dispute"]
+    sentences = safe_sent_tokenize(text)
+    found_types = set()
 
-    sentences = sent_tokenize(text)[:20]  # First 20 sentences
+    for i, sent in enumerate(sentences):
+        if len(found_types) >= 8: break # Max 8 unique types
+        sent_lower = sent.lower()
+        for term, label in legal_terms.items():
+            if term in sent_lower and label not in found_types:
+                clauses.append({
+                    "id": len(clauses) + 1,
+                    "type": label,
+                    "content": sent.strip(),
+                    "importance": "high" if term in ["liability", "termination", "payment"] else "medium"
+                })
+                found_types.add(label)
+                break
 
     for i, sent in enumerate(sentences):
         sent_lower = sent.lower()
@@ -146,10 +173,12 @@ def safe_sent_tokenize(text):
     except:
         return re.split(r'(?<=[.!?]) +', text)
 
-def chatbot_query(text, user_question, top_k=3):
-    """Answer questions about the document"""
+def chatbot_query(text, user_question, top_k=5):
+    """Answer questions about the document using better context retrieval"""
     try:
-        sentences = safe_sent_tokenize(text)[:50]  # Limit sentences
+        # Scan more sentences from original text for better accuracy
+        sentences = safe_sent_tokenize(text)[:200] 
+        if not sentences: return "I couldn't find enough text to analyze." 
         sentence_embeddings = embed_model.encode(sentences)
         question_embedding = embed_model.encode([user_question])
 
@@ -237,7 +266,7 @@ def chat():
         doc_data = document_store[document_id]
 
         # Use simplified text for chatbot
-        answer = chatbot_query(doc_data['simplified'], question)
+        answer = chatbot_query(doc_data['original'], question)
 
         return jsonify({
             "success": True,
