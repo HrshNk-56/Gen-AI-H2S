@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.class
+venv/
+.env
+.pytest_cache/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+
+# React
+build/
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project Specific
+sample_documents/
