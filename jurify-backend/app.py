@@ -110,6 +110,7 @@ def simplify_document(text, max_chunk_words=500):
     
     return "\n\n".join(simplified)
 
+@lru_cache(maxsize=32)
 def extract_clauses(text):
     """Extract important clauses from the entire document intelligently"""
     clauses = []
