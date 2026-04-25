@@ -1,5 +1,5 @@
 // src/pages/ResultsPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { downloadAsPdf, downloadAsDocx } from '../utils/downloadUtils';
@@ -20,6 +20,25 @@ const ResultsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const simplifiedRef = useRef(null);
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  const scrollToClause = (content) => {
+    if (!simplifiedRef.current) return;
+    
+    const text = simplifiedRef.current.innerText;
+    // Basic search for the content
+    alert(`Searching for: ${content.substring(0, 30)}...`);
+    // In a real app, we would use more complex DOM highlighting
+  };
+
+  const handleCopy = () => {
+    if (!documentData?.simplified) return;
+    navigator.clipboard.writeText(documentData.simplified);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
+  };
+
 
   const [isLoading, setIsLoading] = useState(true);
   const [documentData, setDocumentData] = useState(null);
@@ -149,6 +168,20 @@ const ResultsPage = () => {
               <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem' }}>Key Clauses Identified</h2>
               <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
                 {documentData.clauses.map(clause => (
+                  <div key={clause.id} 
+                    onClick={() => scrollToClause(clause.simplified || clause.content)}
+                    style={{
+                      minWidth: '250px',
+                      padding: '1rem',
+                      backgroundColor: theme.colors.hover,
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                      borderLeft: `4px solid ${clause.importance === 'high' ? '#ef4444' : theme.colors.primary}`
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
                   <div key={clause.id} style={{
                     minWidth: '250px',
                     padding: '1rem',
@@ -182,10 +215,26 @@ const ResultsPage = () => {
               </div>
             </div>
             <div className="document-pane">
-              <h2>Simplified Version</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h2 style={{ margin: 0 }}>Simplified Version</h2>
+                <button 
+                  onClick={handleCopy}
+                  style={{
+                    padding: '0.4rem 0.8rem',
+                    fontSize: '0.8rem',
+                    backgroundColor: copySuccess ? '#10b981' : theme.colors.hover,
+                    color: copySuccess ? 'white' : theme.colors.text,
+                    border: `1px solid ${theme.colors.border}`,
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {copySuccess ? '✓ Copied!' : '📋 Copy Text'}
+                </button>
+              </div>
               <div className="document-content">
                 {isLoading ? 'Processing...' : (
-                  <div style={{ whiteSpace: 'pre-wrap' }}>
+                  <div ref={simplifiedRef} style={{ whiteSpace: 'pre-wrap' }}>
                     {documentData?.simplified || 'No simplified text available.'}
                   </div>
                 )}

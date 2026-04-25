@@ -137,6 +137,7 @@ def extract_clauses(text):
                     "id": len(clauses) + 1,
                     "type": label,
                     "content": sent.strip(),
+                    "simplified": simplify_sentence(sent),
                     "importance": "high" if term in ["liability", "termination", "payment"] else "medium"
                 })
                 found_types.add(label)

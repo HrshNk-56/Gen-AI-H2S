@@ -158,7 +158,19 @@ const Chatbot = ({ documentId, documentText }) => {
                             Send
                         </button>
                     </form>
-                </div>
+                
+                    <style>{`
+                        .typing-indicator::after {
+                            content: '...';
+                            animation: typing 1.5s infinite;
+                        }
+                        @keyframes typing {
+                            0% { content: '.'; }
+                            33% { content: '..'; }
+                            66% { content: '...'; }
+                        }
+                    `}</style>
+</div>
             )}
             <button onClick={toggleChat} style={{
                 width: '60px',

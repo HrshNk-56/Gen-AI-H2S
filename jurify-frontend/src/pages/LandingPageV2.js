@@ -21,6 +21,18 @@ const LandingPageV2 = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleTrySample = async () => {
+    try {
+      const response = await fetch('/samples/sample_nda.pdf');
+      const blob = await response.blob();
+      const file = new File([blob], 'sample_nda.pdf', { type: 'application/pdf' });
+      handleFileUpload(file);
+    } catch (error) {
+      console.error('Error loading sample:', error);
+      alert('Could not load sample file.');
+    }
+  };
+
   const handleFileUpload = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -147,6 +159,24 @@ const LandingPageV2 = () => {
             Transform complex legal jargon into plain English with AI. No legal expertise required.
           </p>
           <FileUploadV2 onFileUpload={handleFileUpload} />
+          <div style={{ marginTop: '1.5rem' }}>
+            <button 
+              onClick={handleTrySample}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: theme.isDarkMode ? theme.colors.text : '#ffffff',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                fontSize: '0.95rem',
+                opacity: 0.8
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = 0.8}
+            >
+              Don't have a document? Try our sample NDA
+            </button>
+          </div>
         </section>
 
         <section id="features" style={{ padding: '5rem 2rem', backgroundColor: theme.colors.backgroundSecondary }}>
