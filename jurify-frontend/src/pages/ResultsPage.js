@@ -182,13 +182,6 @@ const ResultsPage = () => {
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                   >
-                  <div key={clause.id} style={{
-                    minWidth: '250px',
-                    padding: '1rem',
-                    backgroundColor: theme.colors.hover,
-                    borderRadius: '8px',
-                    borderLeft: `4px solid ${clause.importance === 'high' ? '#ef4444' : theme.colors.primary}`
-                  }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{clause.type}</span>
                       <span style={{ 
@@ -207,7 +200,7 @@ const ResultsPage = () => {
               </div>
             </div>
           )}
-          <div className="split-view">
+                    <div className="split-view">
             <div className="document-pane">
               <h2>Original Document</h2>
               <div className="document-content original-preview">
