@@ -142,22 +142,8 @@ def extract_clauses(text):
                 })
                 found_types.add(label)
                 break
-
-    for i, sent in enumerate(sentences):
-        sent_lower = sent.lower()
-        for term in legal_terms:
-            if term in sent_lower:
-                clause_type = term.capitalize()
-                clauses.append({
-                    "id": i + 1,
-                    "type": clause_type,
-                    "content": sent[:200],
-                    "simplified": simplify_sentence(sent),
-                    "importance": "high" if term in ["liability", "termination", "payment"] else "medium"
-                })
-                break
-
-    return clauses[:5]  # Return max 5 clauses
+    
+    return clauses[:8]
 
 def simplify_sentence(sentence):
     """Simplify a single sentence"""
