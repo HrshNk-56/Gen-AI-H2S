@@ -10,6 +10,6 @@ RUN python -m spacy download en_core_web_sm
 
 COPY . .
 
-EXPOSE 8000
+EXPOSE 5000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]

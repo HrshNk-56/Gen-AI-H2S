@@ -26,7 +26,7 @@ const LandingPageV2 = () => {
     formData.append('file', file);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/upload`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'}/api/upload`, {
         method: 'POST',
         body: formData
       });

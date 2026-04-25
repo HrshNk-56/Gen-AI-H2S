@@ -14,11 +14,10 @@ import re
 import base64
 import tempfile
 
-nltk.download('punkt_tab')
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "https://jurify-test.vercel.app", "https://7crk8sexpd.us-east-1.awsapprunner.com"])
+CORS(app, origins="*")
 
 # Download required NLTK data
 try:
@@ -69,7 +68,12 @@ def load_document(file):
                 if page_text:
                     text += page_text + "\n"
         elif file_extension in ["docx", "doc"]:
-            doc = Document(temp_path)
+            try:
+                doc = Document(temp_path)
+            except Exception as e:
+                if file_extension == "doc":
+                    raise ValueError("Legacy .doc files are not supported. Please convert to .docx or .pdf.")
+                raise e
             for para in doc.paragraphs:
                 text += para.text + "\n"
         elif file_extension == "txt":
@@ -256,4 +260,4 @@ def get_document(doc_id):
     })
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8000, use_reloader=False)
+    app.run(debug=True, port=5000, use_reloader=False)
